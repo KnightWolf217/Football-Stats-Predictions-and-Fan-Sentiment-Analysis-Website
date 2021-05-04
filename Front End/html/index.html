@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Premier Predictor</title>
+    <!-- Link to external style sheet -->
+    <link rel="stylesheet" type="text/css" href="../css/main.css">
+    <!-- tab icon image -->
+    <link rel="icon" href="../images/pl.png">
+    <!-- plotly import -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <!-- navigation bar and it's various elements -->
+    <div class="navigation" id="nav">
+        <a>
+            <img src="../images/pl.png" style="height: 37px; width: 37px; z-index: 5; margin-left: -10px"></img>
+            <font size=5 color=white style="vertical-align: 10px; padding-left: 5px;">Premier Predictor</font>
+        </a>
+    </div>
+    <div class=container>
+        <img class=back>
+        <div class="navHolder">
+            <div class=navB>
+                <br>
+                <h1></h1>
+                <span style="position: fixed; z-index: 2; margin-left: -10px;">
+                <p1><b><font size="5">Welcome to Premier Predictor!</font></b></p1>
+                <br>
+                <p1>View stats/predictions for league</p1>
+                <br>
+                <p1>matches and fanbase</p1>
+                <br>
+                </p1>analysis!</p1>
+            </span>
+            </div>
+        </div>
+    </div>
+    <div class="triangle"></div>
+
+    <h2></h2>
+
+    <!-- main div for all data -->
+    <div id=infoDisplay></div>
+    </div>
+
+    <!-- ajax import -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+        //teams
+        teamsArray = ['ManCity', 'ManUtd', 'Liverpool', 'Chelsea', 'Arsenal'];
+
+        //graph points colours array 
+        graphColours1 = ['gold', 'red', 'red', 'blue', 'red']
+
+        //graph colours array 
+        graphColours2 = ['lightblue', 'darkgoldenrod', 'cyan', 'lightblue', 'white']
+
+        //array to store matches results
+        let matchesArray = []
+
+        //array to store predicted results
+        let predictedResults = []
+
+        //array to store sentiments 
+        let sentimentsArray = []
+
+        //creating divs and titles for the teams to display data
+        for (x = 0; x < teamsArray.length; x++) {
+            document.getElementById('infoDisplay').innerHTML += '<div style="position: absolute; top: ' + (125 + (500 * x)) + 'px; left: 40%;">' +
+                '<p1><b><font color=white size=4>Premier League</font></b></p1>' +
+                '</div>' +
+                '<div style="position: absolute; top: ' + (130 + (500 * x)) + 'px; left: 75.8%">' +
+                '<p1><b><font color=white size="3">Overall Stats</font></b></p1>' +
+                '</div>' +
+                '<div style="position: absolute; top: ' + (200 + (500 * x)) + 'px; left: 88%">' +
+                '<p1><b><font color=white size="5">Fanbase</font></b></p1>' +
+                '</div>' +
+                '<div class=' + teamsArray[x] + ' style="top: ' + (210 + (500 * x)) + 'px">' +
+                '<img class=logo' + teamsArray[x] + ' src="../images/' + teamsArray[x] + '.png">' +
+                '</div>' +
+                '<div id="' + teamsArray[x] + 'graph" style="position: absolute; top: ' + (80 + (500 * x)) + 'px; left: 13%; max-height: 450px; height: 26.78vw; width: 62.5%;"></div>' +
+                '<div id="' + teamsArray[x] + 'loader" style="position: absolute; top: ' + (300 + (500 * x)) + 'px; left: 725px;"></div>' +
+                '<div id="' + teamsArray[x] + 'pie" style="position: absolute; top: ' + (80 + (500 * x)) + 'px; right: 12.5%; height: 17.8vw; max-height: 300px; max-width: 300px; width: 20.09vw;"></div>' +
+                '<div id="' + teamsArray[x] + 'bar" style="position: absolute; top: ' + (160 + (500 * x)) + 'px; right: -1%; height: 23.8vw; max-height: 400px; max-width: 350px; width: 20.83vw;"></div>' +
+                '<div class=backblack style="position: absolute; top: ' + (100 + (500 * x)) + 'px; left: 0px; max-height: 430.5px; height: 28.029vw;"></div>' +
+                '</div>';
+            // display a loading message until the data arrives from the rest api
+            document.getElementById(teamsArray[x] + "loader").innerHTML = "<font color=white>Loading... Please Wait</font>";
+        }
+
+        //getting data from aws rest api
+        $.ajax({
+            url: "https://4x5d4np254.execute-api.us-east-1.amazonaws.com/default/index", //aws api endpoint for matches data
+            type: 'GET',
+            error: (error) => {
+                console.log(JSON.stringify(error));
+            }
+        }).done(function(response) {
+            $.ajax({
+                url: "https://4x5d4np254.execute-api.us-east-1.amazonaws.com/default/getPredictions", //aws api endpoint for predictions data
+                type: 'GET',
+                error: (error) => {
+                    console.log(JSON.stringify(error));
+                }
+            }).done(function(response2) {
+                $.ajax({
+                    url: "https://4x5d4np254.execute-api.us-east-1.amazonaws.com/default/getSentiments", //aws api endpoint for sentiment data
+                    type: 'GET',
+                    error: (error) => {
+                        console.log(JSON.stringify(error));
+                    }
+                }).done(function(sentiment) {
+                    //for each team
+                    for (x = 0; x < teamsArray.length; x++) {
+                        predictedResults = []; //resetting predictions array to empty
+                        for (let i = 0; i < response2.Items.length; i++) {
+                            if (response2.Items[i].TeamName == teamsArray[x])
+                                predictedResults.push(response2.Items[i].Result); //array to store predictions
+                        }
+                        matchesArray = []; //resetting matches array to empty
+                        for (let i = 0; i < response.Items.length; i++) {
+                            if (response.Items[i].TeamName == teamsArray[x])
+                                matchesArray.push(response.Items[i].Result); //array to store matches results
+                        }
+                        sentimentsArray = []; //resetting sentiments array to empty
+                        for (let i = 0; i < sentiment.Items.length; i++) {
+                            if (sentiment.Items[i].TeamName == teamsArray[x])
+                                sentimentsArray.push(sentiment.Items[i].OverallSentiment); //array to store sentiment data
+                        }
+
+                        //100 matches for x axis
+                        let numberOfMatches = [];
+                        for (let i = 0; i < 100; i++) {
+                            numberOfMatches.push(i + 1);
+                        }
+
+                        //25 predicted matches for x axis
+                        let predictedMatches = [];
+                        for (let i = 0; i < 25; i++) {
+                            predictedMatches.push(i + 101);
+                        }
+
+                        //making visualizations responsive to window size
+                        let config = {
+                            responsive: true
+                        };
+
+                        //Data
+                        let trace = {
+                            y: matchesArray,
+                            x: numberOfMatches,
+                            mode: 'lines+markers',
+                            name: 'Past 100 Results',
+                            marker: {
+                                color: graphColours1[x],
+                                size: 4
+                            },
+                            line: {
+                                color: graphColours2[x],
+                                width: 2
+                            }
+                        };
+
+                        let predictionsTrace = {
+                            y: predictedResults,
+                            x: predictedMatches,
+                            mode: 'lines',
+                            name: 'Next 25 Predictions (Mean)',
+                            line: {
+                                color: 'darkviolet',
+                                width: 2
+                            }
+                        };
+
+                        let data = [trace, predictionsTrace];
+
+                        //graph layout
+                        let layout = {
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            title: '',
+                            font: {
+                                color: "white",
+                                size: 12
+                            },
+                            xaxis: {
+                                title: 'Matches'
+                            },
+                            yaxis: {
+                                title: 'Goal Difference'
+                            },
+                            showlegend: true,
+                            legend: {
+                                x: 0.70,
+                                y: 50
+                            }
+                        };
+
+                        Plotly.newPlot(teamsArray[x] + 'graph', data, layout, config);
+
+                        //overall stats pie chart
+                        let wins = 0;
+                        let draws = 0;
+                        let defeats = 0;
+
+                        //getting stats of wins, draws, and defeats
+                        for (let i = 0; i < matchesArray.length; i++) {
+                            if (matchesArray[i] == 0) draws++;
+                            else if (matchesArray[i] > 0) wins++;
+                            else defeats++;
+                        }
+
+                        var pieData = [{
+                            labels: ['Wins', 'Draws', 'Defeats'],
+                            values: [wins, draws, defeats],
+                            type: 'pie',
+                            textinfo: "label+percent",
+                            marker: {
+                                colors: ['green', 'orange', 'darkred']
+                            }
+                        }];
+
+                        //pie chart layout
+                        let pieLayoutOverall = {
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            showlegend: false
+                        };
+
+                        Plotly.newPlot(teamsArray[x] + 'pie', pieData, pieLayoutOverall, config);
+
+
+                        //sentiment bar chart
+                        let positive = 0;
+                        let neutral = 0;
+                        let negative = 0;
+
+                        //getting stats of wins, draws, and defeats
+                        for (let i = 0; i < matchesArray.length; i++) {
+                            if (sentimentsArray[i] == "POSITIVE") positive++;
+                            else if (sentimentsArray[i] == "NEGATIVE") negative++;
+                            else neutral++;
+                        }
+
+                        //bar chart data
+                        var barDataSentiments = [{
+                            x: ['Positive', 'Neutral', 'Negative'],
+                            y: [positive, neutral, negative],
+                            type: 'bar',
+                            textinfo: "label+percent",
+                            marker: {
+                                color: ['green', 'orange', 'darkred']
+                            }
+                        }];
+
+                        //bar chart layout
+                        let barLayoutFanbase = {
+                            paper_bgcolor: 'rgba(0,0,0,0)',
+                            plot_bgcolor: 'rgba(0,0,0,0)',
+                            showlegend: false
+                        };
+
+                        Plotly.newPlot(teamsArray[x] + 'bar', barDataSentiments, barLayoutFanbase, config);
+
+                        document.getElementById(teamsArray[x] + "loader").innerHTML = ""; //remove loading message
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

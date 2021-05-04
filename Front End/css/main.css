@@ -1,0 +1,172 @@
+/* Body style */
+
+body {
+    margin: 0px;
+    padding: 0px;
+    overflow-x: hidden;
+    background-image: url('../images/background.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    text-align: center;
+    color: black;
+    font-family: 'Avenircustom';
+}
+
+
+/* Shape style */
+
+.triangle {
+    z-index: 1;
+    position: fixed;
+    width: 0;
+    height: 0;
+    border-left: 0px solid transparent;
+    border-right: 620px solid transparent;
+    border-top: 180px solid rgba(0, 0, 0, 0.8);
+}
+
+
+/* custom font */
+
+@font-face {
+    font-family: Avenircustom;
+    src: url('../fonts/Avenir.ttc');
+}
+
+
+/* Navigation bar style */
+
+.navigation {
+    text-align: left;
+    overflow: hidden;
+    position: fixed;
+    padding: 6px;
+    height: 37px;
+    width: 100%;
+    background: rgb(48, 25, 52);
+    z-index: 3;
+}
+
+.navHolder {
+    position: absolute;
+    top: 6%;
+    left: 0.6%;
+}
+
+.navB {
+    color: white;
+    border-radius: 5px;
+    margin: auto;
+    width: 580px;
+    height: 180px;
+    opacity: 1;
+    padding: 15px;
+    text-align: left;
+}
+
+
+/* container */
+
+.container {
+    position: relative;
+    text-align: center;
+}
+
+
+/* background */
+
+.back {
+    width: 100%;
+}
+
+
+/* logos */
+
+.logoManCity {
+    height: auto;
+    width: 11%;
+    max-width: 1600px;
+    float: left;
+}
+
+.logoManUtd {
+    height: auto;
+    width: 11%;
+    max-width: 1600px;
+    float: left;
+}
+
+.logoLiverpool {
+    height: auto;
+    width: 9%;
+    max-width: 1600px;
+    float: left;
+}
+
+.logoChelsea {
+    height: auto;
+    width: 11%;
+    max-width: 1600px;
+    float: left;
+}
+
+.logoArsenal {
+    height: auto;
+    width: 10%;
+    max-width: 1600px;
+    float: left;
+}
+
+.ManCity {
+    position: absolute;
+    left: 37px;
+}
+
+.ManUtd {
+    position: absolute;
+    left: 37px;
+}
+
+.Liverpool {
+    position: absolute;
+    left: 50px;
+}
+
+.Chelsea {
+    position: absolute;
+    left: 37px;
+}
+
+.Arsenal {
+    position: absolute;
+    left: 42px;
+}
+
+
+/* graph */
+
+.graph {
+    opacity: 0.8;
+    height: 250px;
+    width: auto;
+}
+
+
+/* custom a tag */
+
+a {
+    margin: 15px;
+    text-decoration: none;
+}
+
+
+/* div background style */
+
+.backblack {
+    z-index: -1;
+    margin: auto;
+    width: 100%;
+    background: black;
+    opacity: 0.8;
+}
